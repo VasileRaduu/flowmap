@@ -12,13 +12,25 @@ import Link from "next/link";
 import { useState } from "react";
 
 export default function DarshboardPage() {
-	const { user } = useUser();
+	const { user, isLoaded } = useUser();
 	const {createBoard, boards, loading, error } = useBoards()
 	const [viewMode, setViewMode] = useState<"grid" | "list">("grid")
 
 	const handleCreateBoard = async () => {
 		await createBoard({title: "New Board"})
 	};
+
+	// Show loading while Clerk is checking authentication
+	if (!isLoaded) {
+		return (
+			<div className="min-h-screen bg-gray-50 flex items-center justify-center">
+				<div className="text-center">
+					<Loader2 className="h-8 w-8 animate-spin mx-auto mb-4" />
+					<p>Loading...</p>
+				</div>
+			</div>
+		);
+	}
 
   // if (loading) {
   //   return (

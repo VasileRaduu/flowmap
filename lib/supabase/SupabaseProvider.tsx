@@ -20,19 +20,26 @@ export default function SupabaseProvider({
 		const [supabase, setSupabase] = useState<SupabaseClient | null>(null);
 		const [isLoaded, setIsLoaded] = useState<boolean>(false);
 
-		useEffect(() => {
-			if(!session) return;
-			const client = createClient(
-				process.env.NEXT_PUBLIC_SUPABASE_URL!,
-				process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-				{
-					accessToken: async () => session?.getToken() ?? null,
-				}
-			);
+			useEffect(() => {
+		if(!session) {
+			// No session means user is not authenticated
+			// Set isLoaded to true so the app can render (with signed-out state)
+			setIsLoaded(true);
+			setSupabase(null);
+			return;
+		}
+		
+		const client = createClient(
+			process.env.NEXT_PUBLIC_SUPABASE_URL!,
+			process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+			{
+				accessToken: async () => session?.getToken() ?? null,
+			}
+		);
 
-				setSupabase(client)
-				setIsLoaded(true)
-		}, [session]);
+		setSupabase(client)
+		setIsLoaded(true)
+	}, [session]);
 
 	return <Context.Provider value={{supabase, isLoaded}}> 
 	{!isLoaded ? <div>Loading...</div> : children}
